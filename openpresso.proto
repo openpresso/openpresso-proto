@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/duration.proto";
+
+package openpressod;
+
+service OpenpressoDaemon {
+  rpc resetScales(google.protobuf.Empty) returns (google.protobuf.Empty);
+
+  rpc getBrewProfile(google.protobuf.Empty) returns (BrewProfile);
+  rpc setBrewProfile(BrewProfile) returns (google.protobuf.Empty);
+
+  rpc getUserSettings(google.protobuf.Empty) returns (UserSettings);
+  rpc setUserSettings(UserSettings) returns (google.protobuf.Empty);
+
+  rpc setPowerState(PowerState) returns (google.protobuf.Empty);
+  rpc getPowerState(google.protobuf.Empty) returns (PowerState);
+
+  rpc startBrew(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc stopBrew(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc getBrewState(google.protobuf.Empty) returns (BrewState);
+
+  rpc setSteamModeState(SteamModeState) returns (google.protobuf.Empty);
+  rpc getSteamModeState(google.protobuf.Empty) returns (SteamModeState);
+
+  rpc events(google.protobuf.Empty) returns (stream Event);
+  rpc metrics(MetricsRequest) returns (stream Metrics);
+}
+
+message Event {
+    oneof changedState {
+        PowerState powerState = 1;
+        BrewProgress brewProgress = 2;
+        SteamModeState steamModeState = 3;
+        UserSettings userSettings = 4;
+        BrewProfile brewProfile = 5;
+    }
+}
+
+message PowerState {
+    bool value = 1;
+}
+
+message BrewState {
+    bool value = 1;
+}
+
+message BrewProgress {
+    optional uint32 brewStepIndex = 1;
+}
+
+message SteamModeState {
+    bool isActive = 1;
+}
+
+message UserSettings {
+    int32 steamtTemperature = 1;
+}
+
+message MetricsRequest {
+    google.protobuf.Duration updateRate = 1;
+    PidSource pidSource = 2;
+}
+
+message Metrics {
+    int32 temperature = 1;
+    uint32 pressure = 2;
+    int32 weight = 3;
+    int32 flowRate = 4;
+    optional PidMetrics pidMetrics = 5;
+}
+
+message PidMetrics {
+    float p = 1;
+    float d = 2;
+    float i = 3;
+    float f = 4;
+    float sum = 5;
+}
+
+message BrewProfile {
+    string name = 3;
+    int32 temperature = 4;
+    oneof stopCondition {
+        google.protobuf.Duration totalTime = 5;
+        int32 totalWeight = 6;
+    }
+    repeated BrewStep steps = 7;
+}
+
+message BrewStep {
+    oneof stepTarget {
+        uint32 pressure = 1;
+        int32 flowRate = 2;
+    }
+    oneof advanceCondition {
+        google.protobuf.Duration stepTime = 3;
+        google.protobuf.Duration totalTime = 4;
+        int32 totalWeight = 5;
+    }
+}
+
+enum PidSource {
+  PidSource_UNSPECIFIED = 0;
+  BrewTemperatureController = 1;
+  SteamPreheatTemperatureController = 2;
+  SteamActiveTemperatureController = 3;
+}
