@@ -10,12 +10,12 @@ class openpresso_proto(ConanFile):
     exports_sources = "openpresso.proto", "CMakeLists.txt"
 
     def requirements(self):
-        self.requires("grpc/[>=1.78.1]", transitive_headers=True)
-        self.requires("protobuf/6.33.5", transitive_headers=True)
+        self.requires("grpc/1.69.0", transitive_headers=True)
+        self.requires("protobuf/5.29.6")
 
     def build_requirements(self):
-        self.tool_requires("grpc/1.78.1")
-        self.tool_requires("protobuf/6.33.5")
+        self.tool_requires("grpc/1.69.0", visible=False)
+        self.tool_requires("protobuf/5.29.6", visible=False)
 
     def generate(self):
         tc = CMakeToolchain(self)
