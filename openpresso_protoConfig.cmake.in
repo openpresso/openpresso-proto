@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(protobuf)
+find_dependency(gRPC)
+
+include("${CMAKE_CURRENT_LIST_DIR}/openpresso_protoTargets.cmake")
+
+check_required_components(openpresso_proto)
