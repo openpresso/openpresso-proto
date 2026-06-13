@@ -104,7 +104,7 @@ jobs:
         run: conan export-pkg --version=${{ needs.define-version.outputs.version }}
 
       - name: Upload built artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: openpresso_proto-${{ matrix.target }}-${{ needs.define-version.outputs.version }}
           path: ./artifacts
@@ -125,17 +125,10 @@ jobs:
       contents: write
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
-
-      - name: Archive artifacts
-        run: |
-          mkdir release-assets
-          for dir in artifacts/*/; do 
-            name=$(basename "${dir%/}")
-            (cd "$dir" && zip -r "../../release-assets/${name}.zip" .)
-          done
+          skip-decompress: true
           
       - name: Create draft release
         uses: softprops/action-gh-release@v2
@@ -143,5 +136,6 @@ jobs:
           draft: true
           prerelease: ${{ contains(github.ref_name, '-rc') }}
           generate_release_notes: true
+          files: artifacts/*/*
 
       
