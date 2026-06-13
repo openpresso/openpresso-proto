@@ -55,7 +55,7 @@ message SteamModeState {
 }
 
 message UserSettings {
-    int32 steamtTemperature = 1;
+    int32 steamTemperature = 1;
 }
 
 message MetricsRequest {
