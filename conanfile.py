@@ -8,7 +8,7 @@ class openpresso_proto(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     license = "GPL-3.0-or-later"
     package_type = "static-library"
-    exports_sources = "openpresso.proto", "CMakeLists.txt"
+    exports_sources = "openpresso.proto", "CMakeLists.txt", "openpresso_protoConfig.cmake.in"
 
     def set_version(self):
         if not self.version:
