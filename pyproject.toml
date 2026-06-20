@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openpresso_proto"
+dynamic = ["version"]
+description = "Python gRPC stubs generated from openpresso.proto"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Openpresso" }
+]
+dependencies = [
+  "grpcio>=1.69.0",
+  "protobuf>=5.29.6"
+]
+
+[tool.hatch.version]
+source = "env"
+variable = "OPENPRESSO_PROTO_VERSION"
+
+[tool.hatch.build.hooks.protobuf]
+dependencies = ["hatch-protobuf", "grpcio-tools>=1.69.0"]
+proto_paths = ["src"]
+output_path = "."
+generate_grpc = true
+generate_pyi = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["openpresso_proto"]
+
+[tool.hatch.build.targets.sdist]
+only-include = [
+  "src",
+  "openpresso_proto/__init__.py"
+]
