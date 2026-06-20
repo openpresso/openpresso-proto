@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.release_draft.outputs.version || steps.canary.outputs.version || steps.testing.outputs.version }}
+      version-pep: ${{ steps.release_draft.outputs.version_pep || steps.canary.outputs.version_pep || steps.testing.outputs.version_pep }}
       version-type: ${{ steps.release_draft.outputs.version_type || steps.canary.outputs.version_type || steps.testing.outputs.version_type }}
       target-conan: ${{ steps.release_draft.outputs.target_conan || steps.canary.outputs.target_conan || steps.testing.outputs.target_conan }}
       target-twine: ${{ steps.release_draft.outputs.target_twine || steps.canary.outputs.target_twine || steps.testing.outputs.target_twine }}
@@ -31,7 +32,10 @@ jobs:
           echo "target_conan=${{ vars.OPENPRESSO_CONAN_DRAFT }}" >> $GITHUB_OUTPUT
           echo "target_twine=${{ vars.OPENPRESSO_TWINE_DRAFT }}" >> $GITHUB_OUTPUT
           version=${{ github.ref_name }}
+          version=${version#v}
+          version_pep=${version/-rc/rc}
           echo "version=${version#v}" >> $GITHUB_OUTPUT
+          echo "version_pep=$version_pep" >> $GITHUB_OUTPUT
         
       - name: Get Canary version
         id: canary
@@ -41,7 +45,10 @@ jobs:
           echo "target_conan=${{ vars.OPENPRESSO_CONAN_CANARY }}" >> $GITHUB_OUTPUT
           echo "target_twine=${{ vars.OPENPRESSO_TWINE_CANARY }}" >> $GITHUB_OUTPUT
           version=$(git describe --tags --long --exclude '*-*' 2>/dev/null || echo "v0.0.0-$(git rev-list --count HEAD)-g$(git rev-parse --short HEAD)")
-          echo "version=${version#v}" >> $GITHUB_OUTPUT
+          version=${version#v}
+          version_pep=$(echo "$version" | sed -E 's/-/\.dev/; s/-/\+/; s/-/./g')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "version_pep=$version_pep" >> $GITHUB_OUTPUT
 
       - name: Get Testing version
         id: testing
@@ -52,7 +59,10 @@ jobs:
           echo "target_twine=${{ vars.OPENPRESSO_TWINE_TESTING }}" >> $GITHUB_OUTPUT
           branch=$(git rev-parse --abbrev-ref HEAD)
           version=$(git describe --tags --long --exclude '*-*' 2>/dev/null || echo "v0.0.0-$(git rev-list --count HEAD)-g$(git rev-parse --short HEAD)")
+          version=${version#v}-${branch//\//-}
+          version_pep=$(echo "$version" | sed -E 's/-/\.dev/; s/-/\+/; s/-/./g')
           echo "version=${version#v}-${branch//\//-}" >> $GITHUB_OUTPUT
+          echo "version_pep=$version_pep" >> $GITHUB_OUTPUT
 
   upload-sources:
     name: Upload sources to conan remote
@@ -120,11 +130,12 @@ jobs:
           conan remote login -p ${{ secrets.CONAN_DEPLOY_KEY }} openpresso ${{ vars.CONAN_CI_USER }}
           conan upload openpresso_proto/${{ needs.define-version.outputs.version }} --confirm -r openpresso
 
-  build-and-publish:
+  build-python:
+    name: Create Python package
     needs: [ define-version ]
     runs-on: ubuntu-latest
     env:
-      OPENPRESSO_PROTO_VERSION: ${{ needs.define-version.outputs.version }}
+      OPENPRESSO_PROTO_VERSION: ${{ needs.define-version.outputs.version-pep }}
 
     steps:
       - uses: actions/checkout@v6
