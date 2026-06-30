@@ -61,7 +61,7 @@ jobs:
           version=$(git describe --tags --long --exclude '*-*' 2>/dev/null || echo "v0.0.0-$(git rev-list --count HEAD)-g$(git rev-parse --short HEAD)")
           version=${version#v}-${branch//\//-}
           version_pep=$(echo "$version" | sed -E 's/-/\.dev/; s/-/\+/; s/-/./g')
-          echo "version=${version#v}-${branch//\//-}" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
           echo "version_pep=$version_pep" >> $GITHUB_OUTPUT
 
   upload-sources:
