@@ -6,26 +6,26 @@ import "google/protobuf/duration.proto";
 package openpressod;
 
 service OpenpressoDaemon {
-  rpc resetScales(google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc resetScales(google.protobuf.Empty) returns (google.protobuf.Empty);
 
-  rpc getBrewProfile(google.protobuf.Empty) returns (BrewProfile);
-  rpc setBrewProfile(BrewProfile) returns (google.protobuf.Empty);
+    rpc getBrewProfile(google.protobuf.Empty) returns (BrewProfile);
+    rpc setBrewProfile(BrewProfile) returns (google.protobuf.Empty);
 
-  rpc getUserSettings(google.protobuf.Empty) returns (UserSettings);
-  rpc setUserSettings(UserSettings) returns (google.protobuf.Empty);
+    rpc getUserSettings(google.protobuf.Empty) returns (UserSettings);
+    rpc setUserSettings(UserSettings) returns (google.protobuf.Empty);
 
-  rpc setPowerState(PowerState) returns (google.protobuf.Empty);
-  rpc getPowerState(google.protobuf.Empty) returns (PowerState);
+    rpc setPowerState(PowerState) returns (google.protobuf.Empty);
+    rpc getPowerState(google.protobuf.Empty) returns (PowerState);
 
-  rpc startBrew(google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc stopBrew(google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc getBrewState(google.protobuf.Empty) returns (BrewState);
+    rpc startBrew(google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc stopBrew(google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc getBrewState(google.protobuf.Empty) returns (BrewState);
 
-  rpc setSteamModeState(SteamModeState) returns (google.protobuf.Empty);
-  rpc getSteamModeState(google.protobuf.Empty) returns (SteamModeState);
+    rpc setSteamModeState(SteamModeState) returns (google.protobuf.Empty);
+    rpc getSteamModeState(google.protobuf.Empty) returns (SteamModeState);
 
-  rpc events(google.protobuf.Empty) returns (stream Event);
-  rpc metrics(MetricsRequest) returns (stream Metrics);
+    rpc events(google.protobuf.Empty) returns (stream Event);
+    rpc metrics(MetricsRequest) returns (stream Metrics);
 }
 
 message Event {
@@ -80,30 +80,50 @@ message PidMetrics {
 }
 
 message BrewProfile {
-    string name = 3;
-    int32 temperature = 4;
-    oneof stopCondition {
-        google.protobuf.Duration totalTime = 5;
-        int32 totalWeight = 6;
-    }
-    repeated BrewStep steps = 7;
+    string name = 1;
+    int32 temperature = 2;
+    optional StopCondition stopCondition = 3;
+    repeated BrewStep steps = 4;
+}
+
+enum StopConditionType {
+    StopConditionType_UNSPECIFIED = 0;
+    StopConditionType_TotalTime = 1;
+    StopConditionType_TotalWeight = 2;
+}
+
+message StopCondition {
+    StopConditionType type = 1;
+    float value = 2;
 }
 
 message BrewStep {
-    oneof stepTarget {
-        uint32 pressure = 1;
-        int32 flowRate = 2;
-    }
-    oneof advanceCondition {
-        google.protobuf.Duration stepTime = 3;
-        google.protobuf.Duration totalTime = 4;
-        int32 totalWeight = 5;
-    }
+    BrewStepTargetType targetType = 1;
+    float targetValue = 2;
+    optional BrewStepAdvanceCondition advanceCondition = 3;
+}
+
+enum BrewStepTargetType {
+    BrewStepTargetType_UNSPECIFIED = 0;
+    BrewStepTargetType_Pressure = 1;
+    BrewStepTargetType_FlowRate = 2;
+}
+
+message BrewStepAdvanceCondition {
+    BrewStepAdvanceConditionType type = 1;
+    float value = 2;
+}
+
+enum BrewStepAdvanceConditionType {
+    BrewStepAdvanceConditionType_UNSPECIFIED = 0;
+    BrewStepAdvanceConditionType_TotalTime = 1;
+    BrewStepAdvanceConditionType_TotalWeight = 2;
+    BrewStepAdvanceConditionType_StepTime = 3;
 }
 
 enum PidSource {
-  PidSource_UNSPECIFIED = 0;
-  BrewTemperatureController = 1;
-  SteamPreheatTemperatureController = 2;
-  SteamActiveTemperatureController = 3;
+    PidSource_UNSPECIFIED = 0;
+    PidSource_BrewTemperatureController = 1;
+    PidSource_SteamPreheatTemperatureController = 2;
+    PidSource_SteamActiveTemperatureController = 3;
 }
