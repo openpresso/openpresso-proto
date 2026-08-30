@@ -35,6 +35,7 @@ message Event {
         SteamModeState steamModeState = 3;
         UserSettings userSettings = 4;
         BrewProfile brewProfile = 5;
+        BrewState brewState = 6;
     }
 }
 
@@ -47,7 +48,7 @@ message BrewState {
 }
 
 message BrewProgress {
-    optional uint32 brewStepIndex = 1;
+    uint32 brewStepIndex = 1;
 }
 
 message SteamModeState {
