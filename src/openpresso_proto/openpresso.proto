@@ -69,7 +69,8 @@ message Metrics {
     uint32 pressure = 2;
     int32 weight = 3;
     int32 flowRate = 4;
-    optional PidMetrics pidMetrics = 5;
+    google.protobuf.Duration brewTimer = 5;
+    optional PidMetrics pidMetrics = 6;
 }
 
 message PidMetrics {
