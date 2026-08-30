@@ -34,6 +34,9 @@ class openpresso_proto(ConanFile):
 
     def layout(self):
         cmake_layout(self)
+        self.cpp.source.includedirs = []
+        self.cpp.build.libdirs = ["src"]
+        self.cpp.build.includedirs = ["src"]
 
     def build(self):
         cmake = CMake(self)
