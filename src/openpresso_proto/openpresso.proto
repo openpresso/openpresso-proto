@@ -36,6 +36,7 @@ message Event {
         UserSettings userSettings = 4;
         BrewProfile brewProfile = 5;
         BrewState brewState = 6;
+        HeaterState heaterState = 7;
     }
 }
 
@@ -57,6 +58,10 @@ message SteamModeState {
 
 message UserSettings {
     int32 steamTemperature = 1;
+}
+
+message HeaterState {
+    HeatingStatus value = 1;
 }
 
 message MetricsRequest {
@@ -128,4 +133,11 @@ enum PidSource {
     PidSource_BrewTemperatureController = 1;
     PidSource_SteamPreheatTemperatureController = 2;
     PidSource_SteamActiveTemperatureController = 3;
+}
+
+enum HeatingStatus {
+    HeatingStatus_DISABLED = 0;
+    HeatingStatus_Preheat = 1;
+    HeatingStatus_Ready = 2;
+    HeatingStatus_Overheat = 3;
 }
