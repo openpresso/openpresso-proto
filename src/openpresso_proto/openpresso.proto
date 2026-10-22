@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
 
 package openpressod;
 
@@ -26,6 +27,7 @@ service OpenpressoDaemon {
 
     rpc events(google.protobuf.Empty) returns (stream Event);
     rpc metrics(MetricsRequest) returns (stream Metrics);
+    rpc brewLog(google.protobuf.Empty) returns (stream BrewLogRecord);
 }
 
 message Event {
@@ -91,6 +93,26 @@ message BrewProfile {
     int32 temperature = 2;
     optional StopCondition stopCondition = 3;
     repeated BrewStep steps = 4;
+}
+
+message BrewLogRecord {
+    oneof record {
+        BrewLogStart brewLogStart = 1;
+        BrewLogMetrics metrics = 2;
+        BrewProgress stepChange = 3;
+    }
+}
+
+message BrewLogStart {
+    google.protobuf.Duration samplingInterval = 1;
+    google.protobuf.Timestamp startPoint = 2;
+}
+
+message BrewLogMetrics {
+    int32 temperature = 1;
+    uint32 pressure = 2;
+    int32 weight = 3;
+    int32 flowRate = 4;
 }
 
 enum StopConditionType {
