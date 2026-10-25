@@ -100,6 +100,8 @@ message BrewLogRecord {
         BrewLogStart brewLogStart = 1;
         BrewLogMetrics metrics = 2;
         BrewProgress stepChange = 3;
+        google.protobuf.Empty stopFlag = 4;
+        google.protobuf.Empty logCleanedUp = 5;
     }
 }
 
