@@ -9,7 +9,7 @@ package openpressod;
 service OpenpressoDaemon {
     rpc resetScales(google.protobuf.Empty) returns (google.protobuf.Empty);
 
-    rpc getBrewProfile(google.protobuf.Empty) returns (BrewProfile);
+    rpc getBrewProfile(google.protobuf.Empty) returns (BrewProfileInfo);
     rpc setBrewProfile(BrewProfile) returns (google.protobuf.Empty);
 
     rpc getUserSettings(google.protobuf.Empty) returns (UserSettings);
@@ -27,7 +27,7 @@ service OpenpressoDaemon {
 
     rpc events(google.protobuf.Empty) returns (stream Event);
     rpc metrics(MetricsRequest) returns (stream Metrics);
-    rpc brewLog(google.protobuf.Empty) returns (stream BrewLogRecord);
+    rpc brewLog(BrewLogRequest) returns (stream BrewLog);
 }
 
 message Event {
@@ -36,7 +36,7 @@ message Event {
         BrewProgress brewProgress = 2;
         SteamModeState steamModeState = 3;
         UserSettings userSettings = 4;
-        BrewProfile brewProfile = 5;
+        BrewProfileInfo brewProfile = 5;
         BrewState brewState = 6;
         HeaterState heaterState = 7;
     }
@@ -47,7 +47,9 @@ message PowerState {
 }
 
 message BrewState {
-    bool value = 1;
+    bool isActive = 1;
+    uint32 brewId = 2;
+    uint32 profileGeneration = 3;
 }
 
 message BrewProgress {
@@ -88,6 +90,11 @@ message PidMetrics {
     float sum = 5;
 }
 
+message BrewProfileInfo {
+    BrewProfile profile = 1;
+    uint32 generation = 2;
+}
+
 message BrewProfile {
     string name = 1;
     int32 temperature = 2;
@@ -95,13 +102,15 @@ message BrewProfile {
     repeated BrewStep steps = 4;
 }
 
-message BrewLogRecord {
-    oneof record {
+message BrewLogRequest {
+    uint32 brewId = 1;
+}
+
+message BrewLog {
+    oneof data {
         BrewLogStart brewLogStart = 1;
-        BrewLogMetrics metrics = 2;
-        BrewProgress stepChange = 3;
-        google.protobuf.Empty stopFlag = 4;
-        google.protobuf.Empty logCleanedUp = 5;
+        BrewLogData record = 2;
+        BrewLogStop brewLogStop = 4;
     }
 }
 
@@ -110,11 +119,16 @@ message BrewLogStart {
     google.protobuf.Timestamp startPoint = 2;
 }
 
-message BrewLogMetrics {
+message BrewLogStop {
+    BrewLogResult result = 1;
+}
+
+message BrewLogData {
     int32 temperature = 1;
     uint32 pressure = 2;
     int32 weight = 3;
     int32 flowRate = 4;
+    uint32 stepIndex = 5;
 }
 
 enum StopConditionType {
@@ -164,4 +178,10 @@ enum HeatingStatus {
     HeatingStatus_Preheat = 1;
     HeatingStatus_Ready = 2;
     HeatingStatus_Overheat = 3;
+}
+
+enum BrewLogResult {
+    BrewLogResult_UNSPECIFIED = 0;
+    BrewLogResult_Ok = 1;
+    BrewLogResult_IdNotFound = 2;
 }
