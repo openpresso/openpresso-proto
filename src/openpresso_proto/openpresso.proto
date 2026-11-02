@@ -9,8 +9,16 @@ package openpressod;
 service OpenpressoDaemon {
     rpc resetScales(google.protobuf.Empty) returns (google.protobuf.Empty);
 
-    rpc getBrewProfile(google.protobuf.Empty) returns (BrewProfileInfo);
-    rpc setBrewProfile(BrewProfile) returns (google.protobuf.Empty);
+    rpc getActiveBrewProfile(google.protobuf.Empty) returns (BrewProfileInfo);
+    rpc setActiveBrewProfile(ActivateBrewProfile) returns (google.protobuf.Empty);
+
+    rpc getPersistentBrewProfile(BrewProfileId) returns (BrewProfileInfo);
+    rpc addPersistentBrewProfile(BrewProfile) returns (PersistentBrewProfileInfo);
+    rpc updatePersistentBrewProfile(UpdatePersistentProfile) returns (google.protobuf.Empty);
+    rpc deletePersistentBrewProfile(BrewProfileId) returns (google.protobuf.Empty);
+    rpc findPeristentBrewProfiles(FindBrewProfiles) returns (BrewProfilesSearchResult);
+
+    rpc getHistoricalBrewProfile(BrewProfileId) returns (BrewProfile);
 
     rpc getUserSettings(google.protobuf.Empty) returns (UserSettings);
     rpc setUserSettings(UserSettings) returns (google.protobuf.Empty);
@@ -27,7 +35,10 @@ service OpenpressoDaemon {
 
     rpc events(google.protobuf.Empty) returns (stream Event);
     rpc metrics(MetricsRequest) returns (stream Metrics);
-    rpc brewLog(BrewLogRequest) returns (stream BrewLog);
+
+    rpc findBrewLogs(FindBrewLogs) returns (BrewLogsSearchResult);
+    rpc getBrewLog(BrewLogId) returns (stream BrewLog);
+    rpc removeBrewLog(BrewLogId) returns (google.protobuf.Empty);
 }
 
 message Event {
@@ -49,7 +60,6 @@ message PowerState {
 message BrewState {
     bool isActive = 1;
     uint32 brewId = 2;
-    uint32 profileGeneration = 3;
 }
 
 message BrewProgress {
@@ -92,7 +102,19 @@ message PidMetrics {
 
 message BrewProfileInfo {
     BrewProfile profile = 1;
-    uint32 generation = 2;
+    optional PersistentBrewProfileInfo persistentInfo = 2;
+}
+
+message ActivateBrewProfile {
+    oneof data {
+        BrewProfile profile = 1;
+        uint32 persistentId = 2;
+    }
+}
+
+message UpdatePersistentProfile {
+    uint32 id = 1;
+    BrewProfile profile = 2;
 }
 
 message BrewProfile {
@@ -102,7 +124,39 @@ message BrewProfile {
     repeated BrewStep steps = 4;
 }
 
-message BrewLogRequest {
+message BrewProfileId {
+    uint32 id = 1;
+}
+
+message FindBrewProfiles {
+    optional google.protobuf.Timestamp minCreated = 1;
+    optional google.protobuf.Timestamp maxCreated = 2;
+    optional google.protobuf.Timestamp minModified = 3;
+    optional google.protobuf.Timestamp maxModified = 4;
+    optional string namePattern = 5;
+}
+
+message BrewProfilesSearchResult {
+    repeated uint32 id = 1;
+}
+
+message FindBrewLogs {
+    optional google.protobuf.Timestamp minDate = 1;
+    optional google.protobuf.Timestamp maxDate = 2;
+    optional string profileNamePattern = 3;
+}
+
+message PersistentBrewProfileInfo {
+    uint32 id = 1;
+    google.protobuf.Timestamp created = 2;
+    google.protobuf.Timestamp modified = 3;
+}
+
+message BrewLogsSearchResult {
+    repeated uint32 id = 1;
+}
+
+message BrewLogId {
     uint32 brewId = 1;
 }
 
@@ -117,6 +171,8 @@ message BrewLog {
 message BrewLogStart {
     google.protobuf.Duration samplingInterval = 1;
     google.protobuf.Timestamp startPoint = 2;
+    BrewProfileId historicalProfileId = 3;
+
 }
 
 message BrewLogStop {
