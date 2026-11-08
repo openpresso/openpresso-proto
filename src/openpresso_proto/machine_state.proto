@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package openpressod;
+
+message PowerState {
+    bool value = 1;
+}
+
+message BrewState {
+    bool isActive = 1;
+    optional uint64 brewId = 2;
+}
+
+message BrewProgress {
+    uint32 brewStepIndex = 1;
+}
+
+message SteamModeState {
+    bool isActive = 1;
+}
+
+message HeaterState {
+    HeatingStatus value = 1;
+}
+
+enum HeatingStatus {
+    HeatingStatus_DISABLED = 0;
+    HeatingStatus_Preheat = 1;
+    HeatingStatus_Ready = 2;
+    HeatingStatus_Overheat = 3;
+}

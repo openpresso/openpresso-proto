@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package openpressod;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+import "openpresso_proto/brew_profile.proto";
+
+message FindBrewLogs {
+    uint64 offset = 1;
+    uint64 limit = 2;
+    optional google.protobuf.Timestamp minDate = 3;
+    optional google.protobuf.Timestamp maxDate = 4;
+    oneof profile {
+        string profileNamePattern = 5;
+        BrewProfile exactProfile = 6;
+    }
+}
+
+message BrewLogsSearchResult {
+    repeated BrewLog logs = 1;
+}
+
+message BrewLogId {
+    uint64 id = 1;
+}
+
+message BrewLog {
+    uint64 id = 1;
+    google.protobuf.Duration samplingInterval = 2;
+    google.protobuf.Timestamp startPoint = 3;
+    BrewProfile profile = 4;
+    repeated BrewLogData records = 5;
+}
+
+message BrewLogStream {
+    oneof data {
+        BrewLogStart brewLogStart = 1;
+        BrewLogData record = 2;
+        google.protobuf.Empty brewLogStop = 3;
+    }
+}
+
+message BrewLogStart {
+    google.protobuf.Duration samplingInterval = 1;
+    google.protobuf.Timestamp startPoint = 2;
+    BrewProfile profile = 3;
+}
+
+message BrewLogData {
+    uint32 pressure = 2;
+    int32 weight = 3;
+    int32 flowRate = 4;
+    uint32 stepIndex = 5;
+}

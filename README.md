@@ -11,6 +11,23 @@
 
 It provides a set of IPC calls to organize communication between background daemon that controls coffee machine hardware and client services.
 
+## Schema layout
+
+The definitions in `src/openpresso_proto` are grouped by domain:
+
+- `brew_profile.proto`: profiles, steps, stop conditions, and profile management.
+- `brew_log.proto`: log searches and streamed brew records.
+- `machine_state.proto`: power, brewing, steam, and heater state.
+- `user_settings.proto`: user preferences.
+- `metrics.proto`: telemetry and PID metrics.
+- `events.proto`: state-change events.
+
+`openpresso.proto` defines the daemon service and publicly imports every domain.
+Existing C++ includes of `openpresso_proto/openpresso.pb.h` and Python access
+through `from openpresso_proto import messages` remain supported. Python callers
+can also import individual domain modules, such as
+`from openpresso_proto import brew_profile_pb2`.
+
 ## Documentation & Resources
 
 For detailed information about Openpresso project, please refer to the following resources:

@@ -1,24 +1,27 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-import "google/protobuf/duration.proto";
-import "google/protobuf/timestamp.proto";
-
 package openpressod;
+
+import "google/protobuf/empty.proto";
+
+import public "openpresso_proto/brew_profile.proto";
+import public "openpresso_proto/brew_log.proto";
+import public "openpresso_proto/machine_state.proto";
+import public "openpresso_proto/user_settings.proto";
+import public "openpresso_proto/metrics.proto";
+import public "openpresso_proto/events.proto";
 
 service OpenpressoDaemon {
     rpc resetScales(google.protobuf.Empty) returns (google.protobuf.Empty);
 
-    rpc getActiveBrewProfile(google.protobuf.Empty) returns (BrewProfileInfo);
+    rpc getActiveBrewProfile(google.protobuf.Empty) returns (ActiveBrewProfile);
     rpc setActiveBrewProfile(ActivateBrewProfile) returns (google.protobuf.Empty);
 
-    rpc getPersistentBrewProfile(BrewProfileId) returns (BrewProfileInfo);
-    rpc addPersistentBrewProfile(BrewProfile) returns (PersistentBrewProfileInfo);
+    rpc getPersistentBrewProfile(BrewProfileId) returns (PersistentBrewProfile);
+    rpc addPersistentBrewProfile(BrewProfile) returns (BrewProfileId);
     rpc updatePersistentBrewProfile(UpdatePersistentProfile) returns (google.protobuf.Empty);
     rpc deletePersistentBrewProfile(BrewProfileId) returns (google.protobuf.Empty);
-    rpc findPeristentBrewProfiles(FindBrewProfiles) returns (BrewProfilesSearchResult);
-
-    rpc getHistoricalBrewProfile(BrewProfileId) returns (BrewProfile);
+    rpc findPersistentBrewProfiles(FindBrewProfiles) returns (BrewProfilesSearchResult);
 
     rpc getUserSettings(google.protobuf.Empty) returns (UserSettings);
     rpc setUserSettings(UserSettings) returns (google.protobuf.Empty);
@@ -37,207 +40,6 @@ service OpenpressoDaemon {
     rpc metrics(MetricsRequest) returns (stream Metrics);
 
     rpc findBrewLogs(FindBrewLogs) returns (BrewLogsSearchResult);
-    rpc getBrewLog(BrewLogId) returns (stream BrewLog);
+    rpc getBrewLog(BrewLogId) returns (stream BrewLogStream);
     rpc removeBrewLog(BrewLogId) returns (google.protobuf.Empty);
-}
-
-message Event {
-    oneof changedState {
-        PowerState powerState = 1;
-        BrewProgress brewProgress = 2;
-        SteamModeState steamModeState = 3;
-        UserSettings userSettings = 4;
-        BrewProfileInfo brewProfile = 5;
-        BrewState brewState = 6;
-        HeaterState heaterState = 7;
-    }
-}
-
-message PowerState {
-    bool value = 1;
-}
-
-message BrewState {
-    bool isActive = 1;
-    uint32 brewId = 2;
-}
-
-message BrewProgress {
-    uint32 brewStepIndex = 1;
-}
-
-message SteamModeState {
-    bool isActive = 1;
-}
-
-message UserSettings {
-    int32 steamTemperature = 1;
-}
-
-message HeaterState {
-    HeatingStatus value = 1;
-}
-
-message MetricsRequest {
-    google.protobuf.Duration updateRate = 1;
-    PidSource pidSource = 2;
-}
-
-message Metrics {
-    int32 temperature = 1;
-    uint32 pressure = 2;
-    int32 weight = 3;
-    int32 flowRate = 4;
-    google.protobuf.Duration brewTimer = 5;
-    optional PidMetrics pidMetrics = 6;
-}
-
-message PidMetrics {
-    float p = 1;
-    float d = 2;
-    float i = 3;
-    float f = 4;
-    float sum = 5;
-}
-
-message BrewProfileInfo {
-    BrewProfile profile = 1;
-    optional PersistentBrewProfileInfo persistentInfo = 2;
-}
-
-message ActivateBrewProfile {
-    oneof data {
-        BrewProfile profile = 1;
-        uint32 persistentId = 2;
-    }
-}
-
-message UpdatePersistentProfile {
-    uint32 id = 1;
-    BrewProfile profile = 2;
-}
-
-message BrewProfile {
-    string name = 1;
-    int32 temperature = 2;
-    optional StopCondition stopCondition = 3;
-    repeated BrewStep steps = 4;
-}
-
-message BrewProfileId {
-    uint32 id = 1;
-}
-
-message FindBrewProfiles {
-    optional google.protobuf.Timestamp minCreated = 1;
-    optional google.protobuf.Timestamp maxCreated = 2;
-    optional google.protobuf.Timestamp minModified = 3;
-    optional google.protobuf.Timestamp maxModified = 4;
-    optional string namePattern = 5;
-}
-
-message BrewProfilesSearchResult {
-    repeated uint32 id = 1;
-}
-
-message FindBrewLogs {
-    optional google.protobuf.Timestamp minDate = 1;
-    optional google.protobuf.Timestamp maxDate = 2;
-    optional string profileNamePattern = 3;
-}
-
-message PersistentBrewProfileInfo {
-    uint32 id = 1;
-    google.protobuf.Timestamp created = 2;
-    google.protobuf.Timestamp modified = 3;
-}
-
-message BrewLogsSearchResult {
-    repeated uint32 id = 1;
-}
-
-message BrewLogId {
-    uint32 brewId = 1;
-}
-
-message BrewLog {
-    oneof data {
-        BrewLogStart brewLogStart = 1;
-        BrewLogData record = 2;
-        BrewLogStop brewLogStop = 4;
-    }
-}
-
-message BrewLogStart {
-    google.protobuf.Duration samplingInterval = 1;
-    google.protobuf.Timestamp startPoint = 2;
-    BrewProfileId historicalProfileId = 3;
-
-}
-
-message BrewLogStop {
-    BrewLogResult result = 1;
-}
-
-message BrewLogData {
-    int32 temperature = 1;
-    uint32 pressure = 2;
-    int32 weight = 3;
-    int32 flowRate = 4;
-    uint32 stepIndex = 5;
-}
-
-enum StopConditionType {
-    StopConditionType_UNSPECIFIED = 0;
-    StopConditionType_TotalTime = 1;
-    StopConditionType_TotalWeight = 2;
-}
-
-message StopCondition {
-    StopConditionType type = 1;
-    float value = 2;
-}
-
-message BrewStep {
-    BrewStepTargetType targetType = 1;
-    float targetValue = 2;
-    optional BrewStepAdvanceCondition advanceCondition = 3;
-}
-
-enum BrewStepTargetType {
-    BrewStepTargetType_UNSPECIFIED = 0;
-    BrewStepTargetType_Pressure = 1;
-    BrewStepTargetType_FlowRate = 2;
-}
-
-message BrewStepAdvanceCondition {
-    BrewStepAdvanceConditionType type = 1;
-    float value = 2;
-}
-
-enum BrewStepAdvanceConditionType {
-    BrewStepAdvanceConditionType_UNSPECIFIED = 0;
-    BrewStepAdvanceConditionType_TotalTime = 1;
-    BrewStepAdvanceConditionType_TotalWeight = 2;
-    BrewStepAdvanceConditionType_StepTime = 3;
-}
-
-enum PidSource {
-    PidSource_UNSPECIFIED = 0;
-    PidSource_BrewTemperatureController = 1;
-    PidSource_SteamPreheatTemperatureController = 2;
-    PidSource_SteamActiveTemperatureController = 3;
-}
-
-enum HeatingStatus {
-    HeatingStatus_DISABLED = 0;
-    HeatingStatus_Preheat = 1;
-    HeatingStatus_Ready = 2;
-    HeatingStatus_Overheat = 3;
-}
-
-enum BrewLogResult {
-    BrewLogResult_UNSPECIFIED = 0;
-    BrewLogResult_Ok = 1;
-    BrewLogResult_IdNotFound = 2;
 }

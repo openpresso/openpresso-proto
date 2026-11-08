@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package openpressod;
+
+import "openpresso_proto/brew_profile.proto";
+import "openpresso_proto/machine_state.proto";
+import "openpresso_proto/user_settings.proto";
+
+message Event {
+    oneof changedState {
+        PowerState powerState = 1;
+        BrewProgress brewProgress = 2;
+        SteamModeState steamModeState = 3;
+        UserSettings userSettings = 4;
+        ActiveBrewProfile brewProfile = 5;
+        BrewState brewState = 6;
+        HeaterState heaterState = 7;
+    }
+}
