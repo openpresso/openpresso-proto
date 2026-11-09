@@ -4,8 +4,9 @@ package openpressod;
 
 import "google/protobuf/empty.proto";
 
+import public "openpresso_proto/persistent_id.proto";
 import public "openpresso_proto/brew_profile.proto";
-import public "openpresso_proto/brew_log.proto";
+import public "openpresso_proto/brew_history.proto";
 import public "openpresso_proto/machine_state.proto";
 import public "openpresso_proto/user_settings.proto";
 import public "openpresso_proto/metrics.proto";
@@ -17,10 +18,10 @@ service OpenpressoDaemon {
     rpc getActiveBrewProfile(google.protobuf.Empty) returns (ActiveBrewProfile);
     rpc setActiveBrewProfile(ActivateBrewProfile) returns (google.protobuf.Empty);
 
-    rpc getPersistentBrewProfile(BrewProfileId) returns (PersistentBrewProfile);
-    rpc addPersistentBrewProfile(BrewProfile) returns (BrewProfileId);
+    rpc getPersistentBrewProfile(PersistentId) returns (PersistentBrewProfile);
+    rpc addPersistentBrewProfile(BrewProfile) returns (PersistentId);
     rpc updatePersistentBrewProfile(UpdatePersistentProfile) returns (google.protobuf.Empty);
-    rpc deletePersistentBrewProfile(BrewProfileId) returns (google.protobuf.Empty);
+    rpc deletePersistentBrewProfile(PersistentId) returns (google.protobuf.Empty);
     rpc findPersistentBrewProfiles(FindBrewProfiles) returns (BrewProfilesSearchResult);
 
     rpc getUserSettings(google.protobuf.Empty) returns (UserSettings);
@@ -39,7 +40,7 @@ service OpenpressoDaemon {
     rpc events(google.protobuf.Empty) returns (stream Event);
     rpc metrics(MetricsRequest) returns (stream Metrics);
 
-    rpc findBrewLogs(FindBrewLogs) returns (BrewLogsSearchResult);
-    rpc getBrewLog(BrewLogId) returns (stream BrewLogStream);
-    rpc removeBrewLog(BrewLogId) returns (google.protobuf.Empty);
+    rpc findBrewHistory(FindBrewHistory) returns (BrewHistorySearchResult);
+    rpc getBrewHistoryEntry(PersistentId) returns (stream BrewHistoryStream);
+    rpc removeBrewHistoryEntry(PersistentId) returns (google.protobuf.Empty);
 }

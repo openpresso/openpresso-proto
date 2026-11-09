@@ -16,7 +16,8 @@ It provides a set of IPC calls to organize communication between background daem
 The definitions in `src/openpresso_proto` are grouped by domain:
 
 - `brew_profile.proto`: profiles, steps, stop conditions, and profile management.
-- `brew_log.proto`: log searches and streamed brew records.
+- `brew_history.proto`: history searches, brew history entries, and streamed samples.
+- `persistent_id.proto`: shared `PersistentId` message for profile and history RPCs.
 - `machine_state.proto`: power, brewing, steam, and heater state.
 - `user_settings.proto`: user preferences.
 - `metrics.proto`: telemetry and PID metrics.

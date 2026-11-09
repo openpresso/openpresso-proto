@@ -8,7 +8,7 @@ import "google/protobuf/empty.proto";
 
 import "openpresso_proto/brew_profile.proto";
 
-message FindBrewLogs {
+message FindBrewHistory {
     uint64 offset = 1;
     uint64 limit = 2;
     optional google.protobuf.Timestamp minDate = 3;
@@ -19,37 +19,33 @@ message FindBrewLogs {
     }
 }
 
-message BrewLogsSearchResult {
-    repeated BrewLog logs = 1;
+message BrewHistorySearchResult {
+    repeated BrewHistoryEntry entries = 1;
 }
 
-message BrewLogId {
-    uint64 id = 1;
-}
-
-message BrewLog {
+message BrewHistoryEntry {
     uint64 id = 1;
     google.protobuf.Duration samplingInterval = 2;
     google.protobuf.Timestamp startPoint = 3;
     BrewProfile profile = 4;
-    repeated BrewLogData records = 5;
+    repeated BrewHistoryEntrySample samples = 5;
 }
 
-message BrewLogStream {
+message BrewHistoryStream {
     oneof data {
-        BrewLogStart brewLogStart = 1;
-        BrewLogData record = 2;
-        google.protobuf.Empty brewLogStop = 3;
+        BrewHistoryStart brewHistoryStart = 1;
+        BrewHistoryEntrySample sample = 2;
+        google.protobuf.Empty brewHistoryStop = 3;
     }
 }
 
-message BrewLogStart {
+message BrewHistoryStart {
     google.protobuf.Duration samplingInterval = 1;
     google.protobuf.Timestamp startPoint = 2;
     BrewProfile profile = 3;
 }
 
-message BrewLogData {
+message BrewHistoryEntrySample {
     uint32 pressure = 2;
     int32 weight = 3;
     int32 flowRate = 4;

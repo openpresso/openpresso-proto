@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package openpressod;
+
+message PersistentId {
+    uint64 id = 1;
+}

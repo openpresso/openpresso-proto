@@ -30,10 +30,6 @@ message BrewProfile {
     repeated BrewStep steps = 4;
 }
 
-message BrewProfileId {
-    uint64 id = 1;
-}
-
 message FindBrewProfiles {
     uint64 offset = 1;
     uint64 limit = 2;
