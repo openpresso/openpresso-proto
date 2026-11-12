@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package openpressod;
+
+import "google/protobuf/duration.proto";
+
+message MetricsRequest {
+    google.protobuf.Duration updateRate = 1;
+    PidSource pidSource = 2;
+}
+
+message Metrics {
+    int32 temperature = 1;
+    uint32 pressure = 2;
+    int32 weight = 3;
+    int32 flowRate = 4;
+    google.protobuf.Duration brewTimer = 5;
+    optional PidMetrics pidMetrics = 6;
+}
+
+message PidMetrics {
+    float p = 1;
+    float d = 2;
+    float i = 3;
+    float f = 4;
+    float sum = 5;
+}
+
+enum PidSource {
+    PidSource_UNSPECIFIED = 0;
+    PidSource_BrewTemperatureController = 1;
+    PidSource_SteamPreheatTemperatureController = 2;
+    PidSource_SteamActiveTemperatureController = 3;
+}

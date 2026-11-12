@@ -1,15 +1,28 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-import "google/protobuf/duration.proto";
-
 package openpressod;
+
+import "google/protobuf/empty.proto";
+
+import public "openpresso_proto/persistent_id.proto";
+import public "openpresso_proto/brew_profile.proto";
+import public "openpresso_proto/brew_history.proto";
+import public "openpresso_proto/machine_state.proto";
+import public "openpresso_proto/user_settings.proto";
+import public "openpresso_proto/metrics.proto";
+import public "openpresso_proto/events.proto";
 
 service OpenpressoDaemon {
     rpc resetScales(google.protobuf.Empty) returns (google.protobuf.Empty);
 
-    rpc getBrewProfile(google.protobuf.Empty) returns (BrewProfile);
-    rpc setBrewProfile(BrewProfile) returns (google.protobuf.Empty);
+    rpc getActiveBrewProfile(google.protobuf.Empty) returns (ActiveBrewProfile);
+    rpc setActiveBrewProfile(ActivateBrewProfile) returns (google.protobuf.Empty);
+
+    rpc getPersistentBrewProfile(PersistentId) returns (PersistentBrewProfile);
+    rpc addPersistentBrewProfile(BrewProfile) returns (PersistentId);
+    rpc updatePersistentBrewProfile(UpdatePersistentProfile) returns (google.protobuf.Empty);
+    rpc deletePersistentBrewProfile(PersistentId) returns (google.protobuf.Empty);
+    rpc findPersistentBrewProfiles(FindBrewProfiles) returns (BrewProfilesSearchResult);
 
     rpc getUserSettings(google.protobuf.Empty) returns (UserSettings);
     rpc setUserSettings(UserSettings) returns (google.protobuf.Empty);
@@ -26,118 +39,8 @@ service OpenpressoDaemon {
 
     rpc events(google.protobuf.Empty) returns (stream Event);
     rpc metrics(MetricsRequest) returns (stream Metrics);
-}
 
-message Event {
-    oneof changedState {
-        PowerState powerState = 1;
-        BrewProgress brewProgress = 2;
-        SteamModeState steamModeState = 3;
-        UserSettings userSettings = 4;
-        BrewProfile brewProfile = 5;
-        BrewState brewState = 6;
-        HeaterState heaterState = 7;
-    }
-}
-
-message PowerState {
-    bool value = 1;
-}
-
-message BrewState {
-    bool value = 1;
-}
-
-message BrewProgress {
-    uint32 brewStepIndex = 1;
-}
-
-message SteamModeState {
-    bool isActive = 1;
-}
-
-message UserSettings {
-    int32 steamTemperature = 1;
-}
-
-message HeaterState {
-    HeatingStatus value = 1;
-}
-
-message MetricsRequest {
-    google.protobuf.Duration updateRate = 1;
-    PidSource pidSource = 2;
-}
-
-message Metrics {
-    int32 temperature = 1;
-    uint32 pressure = 2;
-    int32 weight = 3;
-    int32 flowRate = 4;
-    google.protobuf.Duration brewTimer = 5;
-    optional PidMetrics pidMetrics = 6;
-}
-
-message PidMetrics {
-    float p = 1;
-    float d = 2;
-    float i = 3;
-    float f = 4;
-    float sum = 5;
-}
-
-message BrewProfile {
-    string name = 1;
-    int32 temperature = 2;
-    optional StopCondition stopCondition = 3;
-    repeated BrewStep steps = 4;
-}
-
-enum StopConditionType {
-    StopConditionType_UNSPECIFIED = 0;
-    StopConditionType_TotalTime = 1;
-    StopConditionType_TotalWeight = 2;
-}
-
-message StopCondition {
-    StopConditionType type = 1;
-    float value = 2;
-}
-
-message BrewStep {
-    BrewStepTargetType targetType = 1;
-    float targetValue = 2;
-    optional BrewStepAdvanceCondition advanceCondition = 3;
-}
-
-enum BrewStepTargetType {
-    BrewStepTargetType_UNSPECIFIED = 0;
-    BrewStepTargetType_Pressure = 1;
-    BrewStepTargetType_FlowRate = 2;
-}
-
-message BrewStepAdvanceCondition {
-    BrewStepAdvanceConditionType type = 1;
-    float value = 2;
-}
-
-enum BrewStepAdvanceConditionType {
-    BrewStepAdvanceConditionType_UNSPECIFIED = 0;
-    BrewStepAdvanceConditionType_TotalTime = 1;
-    BrewStepAdvanceConditionType_TotalWeight = 2;
-    BrewStepAdvanceConditionType_StepTime = 3;
-}
-
-enum PidSource {
-    PidSource_UNSPECIFIED = 0;
-    PidSource_BrewTemperatureController = 1;
-    PidSource_SteamPreheatTemperatureController = 2;
-    PidSource_SteamActiveTemperatureController = 3;
-}
-
-enum HeatingStatus {
-    HeatingStatus_DISABLED = 0;
-    HeatingStatus_Preheat = 1;
-    HeatingStatus_Ready = 2;
-    HeatingStatus_Overheat = 3;
+    rpc findBrewHistory(FindBrewHistory) returns (BrewHistorySearchResult);
+    rpc getBrewHistoryEntry(PersistentId) returns (stream BrewHistoryStream);
+    rpc removeBrewHistoryEntry(PersistentId) returns (google.protobuf.Empty);
 }

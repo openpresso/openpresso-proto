@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package openpressod;
+
+import "google/protobuf/timestamp.proto";
+
+message ActiveBrewProfile {
+    oneof data {
+        BrewProfile profile = 1;
+        PersistentBrewProfile persistent = 2;
+    }
+}
+
+message ActivateBrewProfile {
+    oneof data {
+        BrewProfile profile = 1;
+        uint64 persistentId = 2;
+    }
+}
+
+message UpdatePersistentProfile {
+    uint64 id = 1;
+    BrewProfile profile = 2;
+}
+
+message BrewProfile {
+    string name = 1;
+    int32 temperature = 2;
+    optional StopCondition stopCondition = 3;
+    repeated BrewStep steps = 4;
+}
+
+message FindBrewProfiles {
+    uint64 offset = 1;
+    uint64 limit = 2;
+    optional google.protobuf.Timestamp minCreated = 3;
+    optional google.protobuf.Timestamp maxCreated = 4;
+    optional google.protobuf.Timestamp minModified = 5;
+    optional google.protobuf.Timestamp maxModified = 6;
+    optional string namePattern = 7;
+}
+
+message BrewProfilesSearchResult {
+    repeated PersistentBrewProfile profiles = 1;
+}
+
+message PersistentBrewProfile {
+    uint64 id = 1;
+    BrewProfile profile = 2;
+    google.protobuf.Timestamp created = 3;
+    google.protobuf.Timestamp modified = 4;
+}
+
+message StopCondition {
+    StopConditionType type = 1;
+    float value = 2;
+}
+
+message BrewStep {
+    BrewStepTargetType targetType = 1;
+    float targetValue = 2;
+    optional BrewStepAdvanceCondition advanceCondition = 3;
+}
+
+message BrewStepAdvanceCondition {
+    BrewStepAdvanceConditionType type = 1;
+    float value = 2;
+}
+
+enum StopConditionType {
+    StopConditionType_UNSPECIFIED = 0;
+    StopConditionType_TotalTime = 1;
+    StopConditionType_TotalWeight = 2;
+}
+
+enum BrewStepAdvanceConditionType {
+    BrewStepAdvanceConditionType_UNSPECIFIED = 0;
+    BrewStepAdvanceConditionType_TotalTime = 1;
+    BrewStepAdvanceConditionType_TotalWeight = 2;
+    BrewStepAdvanceConditionType_StepTime = 3;
+}
+
+enum BrewStepTargetType {
+    BrewStepTargetType_UNSPECIFIED = 0;
+    BrewStepTargetType_Pressure = 1;
+    BrewStepTargetType_FlowRate = 2;
+}

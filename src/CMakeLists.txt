@@ -1,4 +1,13 @@
-add_library(openpresso_proto STATIC openpresso_proto/openpresso.proto)
+add_library(openpresso_proto STATIC
+  openpresso_proto/persistent_id.proto
+  openpresso_proto/openpresso.proto
+  openpresso_proto/brew_profile.proto
+  openpresso_proto/brew_history.proto
+  openpresso_proto/machine_state.proto
+  openpresso_proto/user_settings.proto
+  openpresso_proto/metrics.proto
+  openpresso_proto/events.proto
+)
 
 target_link_libraries(openpresso_proto PUBLIC protobuf::libprotobuf gRPC::grpc++)
 

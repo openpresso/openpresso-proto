@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package openpressod;
+
+message UserSettings {
+    int32 steamTemperature = 1;
+}
