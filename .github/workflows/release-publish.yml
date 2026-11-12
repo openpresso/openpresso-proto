@@ -35,3 +35,13 @@ jobs:
           while read -r slug; do
             cloudsmith move -y openpresso/draft/$slug stable
           done <<< "$SLUGS"
+
+      - name: Publish npm package
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.full }}
+        run: |
+          QUERY="format:npm AND name:^@openpresso/proto$ AND version:^${PACKAGE_VERSION}$"
+          SLUGS=$(cloudsmith list packages openpresso/draft -F pretty_json -q "$QUERY" | jq -r '.data[].slug_perm')
+          while read -r slug; do
+            cloudsmith move -y "openpresso/draft/$slug" stable
+          done <<< "$SLUGS"
